@@ -1,4 +1,4 @@
-; 定時登入遠端桌面 
+; vm hr host 每日定時重啟後 由此定時登入遠端桌面 
 ; 獨立運作 不依賴 windows排程
 
 #Singleinstance force ;單線
