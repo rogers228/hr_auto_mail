@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive -->
+        <style>
+            table, th, td {
+              border: 1px solid black;
+              border-collapse: collapse;
+            }
+            table {
+              width: 100%;
+            }
+            th, td {
+              text-align: left;
+              padding: 4px;
+            }
+
+            tr:nth-child(even){background-color: #ECF5FF}
+
+            th {
+              background-color: #F0F0F0;
+              /*color: white;*/
+            }        
+            .container{
+                display:inline-block;
+                background-color:#FBFFFD;
+                margin: auto;
+                padding: 10px;
+                border-style:solid;
+                border-width:1px;
+                border-radius:5px;
+                border-color:#000079;
+                box-shadow:3px 3px 9px #5151A2;
+                width: 95%;
+            }
+            .row{
+                margin-top: 0px;
+                margin-bottom: 10px;
+            }
+            img {
+                display:block;
+                margin: auto;
+                max-width: 15%;
+                min-width:80px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <img class="logo" src="http://yshr.asuscomm.com/static/20201117_yeoshe.png">
+                </div>
+                <div class="col-sm">
+                  <small><p align="right">html_format_yeoshe_time</p></small>
+                  <small><p align="right">本信由Yeoshe HR自動寄出，請勿回信。</p></small>
+
+                  html_format_yeoshe_message
+
+                  <small><p align="right">以上資料若有修改不另通知，以HR系統為主。</p></small>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
