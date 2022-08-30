@@ -2,11 +2,11 @@ import time
 
 class MyLog():
     def __init__(self):
-        self.log_file = r'log.txt'
+        pass
 
-    def write(self, message): #新增log
+    def write(self, log_file, message): #新增log
         logtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        with open(self.log_file, 'a', encoding='utf-8') as file:
+        with open(log_file, 'a', encoding='utf-8') as file:
             file.write(f"{logtime} {message}\n")
 
 def test1():

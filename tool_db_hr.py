@@ -31,7 +31,24 @@ class db_hr(): #讀取excel 單一零件
         ps = self.dbps
         df = ps.loc[ps['ps01'] == myid] # 篩選
         return df.iloc[0]['ps14'] if len(df.index) > 0 else ''
-        
+    
+    def dic_sg(self): # 假別字典
+        return {
+            1: '特休假',
+            2: '公假',
+            3: '婚假',
+            4: '喪假',
+            5: '產假',
+            6: '病假',
+            7: '事假',
+            8: '陪產假',
+            9: '產檢假',
+            10: '育嬰假',
+            11: '留職停薪',
+            12: '防疫照顧假',
+            13: '疫苗接種假'
+            }
+
     def runsql(self, SQL):
         try:
             cur = self.cn.cursor()
@@ -71,10 +88,39 @@ class db_hr(): #讀取excel 單一零件
         df = pd.read_sql(s, self.cn) #轉pd
         return df if len(df.index) > 0 else None
 
+    def get_sg1_df(self):
+        s = '''
+            SELECT TOP 1 sg01,sg03,sg05,sg06,sg07,sg08,sg09,
+                ps02,ps03,ps12,ps13,ps52
+            FROM rec_sg
+                LEFT JOIN rec_ps ON sg03 = ps01
+            WHERE sg15 = 0 AND ps11 = 1
+            ORDER BY sg01
+            '''
+        # sg15 = 0 未推播
+        # ps11 = 1 在職
+        df = pd.read_sql(s, self.cn) #轉pd
+        return df if len(df.index) > 0 else None
+
+    def get_sg1_test(self):
+        s = '''
+            SELECT sg01,sg03,sg05,sg06,sg07,sg08,sg09,
+                ps02,ps03,ps12,ps13,ps52
+            FROM rec_sg
+                LEFT JOIN rec_ps ON sg03 = ps01
+            WHERE sg01 >= 5327 AND ps11 = 1
+            ORDER BY sg01
+            '''
+        # sg15 = 0 未推播
+        # ps11 = 1 在職
+        df = pd.read_sql(s, self.cn) #轉pd
+        return df if len(df.index) > 0 else None
+
 def test1():
     # new id
     hr = db_hr()
-    df = hr.Get_hhk_df('202208','AA0290')
+    # df = hr.Get_hhk_df('202208','AA0290')
+    df = hr.get_sg1_test()
     print(df)
 
 if __name__ == '__main__':

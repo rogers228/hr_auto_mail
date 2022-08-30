@@ -4,4 +4,4 @@ old/
 config.py
 test*.*
 *.ico
-log.txt
+log*.txt
