@@ -2,5 +2,6 @@ __pycache__/
 test/
 old/
 config.py
-test*.py
+test*.*
 *.ico
+log.txt

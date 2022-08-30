@@ -1,3 +1,4 @@
+<!-- 出勤異常通知 -->
 <!DOCTYPE html>
 <html>
     <head>
@@ -53,10 +54,33 @@
                     <img class="logo" src="http://yshr.asuscomm.com/static/20201117_yeoshe.png">
                 </div>
                 <div class="col-sm">
-                  <small><p align="right">html_format_yeoshe_time</p></small>
+                  <small><p align="right">{{ currtime }}</p></small>
                   <small><p align="right">本信由Yeoshe HR自動寄出，請勿回信。</p></small>
-
-                  html_format_yeoshe_message
+                  <p>Dear {{ psno }} 您本月的出勤紀錄異常，提醒您:
+                              若有溢勤(加班)尚未申請、
+                              缺勤(曠職)尚未請假、
+                              忘記刷卡尚未補刷，
+                              請在薪資結算前進入系統補登，以免損失自身權益，謝謝。
+                  </p>
+                  出勤異常列表</br>
+                  <table>
+                    <tbody>
+                      <tr>
+                        <th>日期</th>
+                        <th>出勤狀況</th>
+                        <th>備註</th>
+                        
+                        {% for item in lis %}
+                          <tr>
+                            <td>{{ item[2][0:8] }}</td>
+                            <td>{{ item[3] }}</td>
+                            <td>{{ item[4] }}</td>
+                          </tr>
+                        {% endfor %}
+                        
+                      </tr> 
+                    </tbody>
+                  </table>
 
                   <small><p align="right">以上資料若有修改不另通知，以HR系統為主。</p></small>
                 </div>
