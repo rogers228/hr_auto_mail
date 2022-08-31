@@ -49,6 +49,17 @@ class db_hr(): #讀取excel 單一零件
             13: '疫苗接種假'
             }
 
+    def update_sg15_1(sg01, value): # 更新sg15為 1 已通知
+        SQL = 'UPDATE rec_sg SET sg15 = 1 WHERE sg01 = {0}'.format(sg01)
+        try:
+            cur = self.cn.cursor()
+            cur.execute(SQL) #執行
+            cur.commit() #更新
+            cur.close() #關閉
+        except:
+            print(SQL)
+            logging.warning('error class db_ab().def runsql()! 無法執行SQL!')
+
     def runsql(self, SQL):
         try:
             cur = self.cn.cursor()
@@ -120,7 +131,7 @@ def test1():
     # new id
     hr = db_hr()
     # df = hr.Get_hhk_df('202208','AA0290')
-    df = hr.get_sg1_test()
+    df = hr.get_sg1_df()
     print(df)
 
 if __name__ == '__main__':

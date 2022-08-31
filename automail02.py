@@ -1,12 +1,11 @@
 # 請假後email通知代理人
-
+# 20220831 加入windows排程
 import sys, time
 import tool_email
 import tool_mylog
 import tool_db_hr 
 import tool_html
 import tool_func
-
 
 def in_work_time(func): # 僅工作時間內通知
     def wrap():
@@ -40,63 +39,51 @@ def get_ms_dic(dateframe_row):
         if psno in lis_ps52: # 請假通知人
             t += ',若影響您的工作請事先協調'
         lis_v.append(t)
-    
+
     return dict(zip(lis_m, lis_v))
 
-@in_work_time
+@in_work_time # 僅工作時間內執行通知
 def main():
     ehr = tool_email.Email_HR()
     log = tool_mylog.MyLog()
     log_file = r'log_automail02.txt'
     hr = tool_db_hr.db_hr()
     hj = tool_html.Jinja2()
-    df = hr.get_sg1_test()
+    df = hr.get_sg1_df() # data 可更換資料來源
+    if df is None:
+        log.write(log_file, '無請假需要通知')
+        sys.exit() #正式結束程式  需要導入sys
+        return
 
     # print(df)
     for i, r in df.iterrows():
         currtime = time.strftime("%Y-%m-%d %H:%M", time.localtime())
         psno = r['ps02'] # 請假人
         holiday = hr.dic_sg().get(r['sg05'], '未設定假別') # 假別
-        d = r['sg06']; date1 = f'{d[0:4]}-{d[4:6]}-{d[6:8]}' # 起始時間 年月日
-        d = r['sg07']; date2 = f'{d[4:6]}-{d[6:8]}' # 結束時間 月日
-        dg = f"{r['sg08']:.3f}"; dg = dg.rstrip('0'); dg = dg.rstrip('.') # 特別格式 小數點去除0 及 小數點
-        days = dg # 請假天數 
-        dic = get_ms_dic(r) # 收件者　與　通知說明
+        date_stage = tool_func.format_d12(r['sg06'], r['sg07']) # 請假時間
+        dg = f"{r['sg08']:.3f}"; dg = dg.rstrip('0'); dg = dg.rstrip('.'); days = dg # 請假天數 特別格式 小數點去除0 及 小數點
+        dic = get_ms_dic(r) # 收件者與通知說明
         for addressee in dic:
+            psid = hr.nogetId(addressee); email = hr.idgetps14(psid)
             message = dic[addressee] # 通知說明
-            # print('currtime:', currtime) # 系統日期
-            # print('addressee:', addressee) # 收件人
-            # print('psno:', psno) # 收件人
-            # print('message:', message) # 通知說明
-            # print('holiday:', holiday) 
-            # print('date1:', date1)
-            # print('date2:', date2)
-            # print('days:', days)
-            # print('-----')
+            msgStr = f"請假通知: Dear {addressee}：{psno} 已申請{holiday} 於{date_stage} 合計:{days}天{message}。"
+            # print(msgStr)
             html = hj.render_jinja_html('template_email_h.html',
                 currtime = currtime,
                 addressee =  addressee,
                 psno = psno,
                 message = message,
                 holiday = holiday,
-                date1=date1, date2=date2, days=days)
+                date_stage=date_stage, days=days)
             try:
-                log.write(log_file, f'sendmail {psno} {addressee} 請假通知\n{html}')
-                # ehr.sendmail(addressee, html, '出勤異常通知') # 寄信
+                log.write(log_file, f'sendmail {email} {msgStr}')
+                ehr.sendmail(email, html, '請假通知') # 寄信
             except:
-                log.write(log_file, f'請假通知, 寄信給{psno}失敗:({email})')
+                log.write(log_file, f'請假通知, 寄信給{addressee}失敗, email:({email})')
+            finally:
+                hr.update_sg15_1(r['sg01']) # 更新為已通知 不再通知
+                # print('finally')
 
-    # for i, psno in enumerate(lis_ps):
-    #     psid = hr.nogetId(psno); email = hr.idgetps14(psid)
-    #     df_w = df.loc[(df['ps02'] == psno)] # 依人員篩選
-    #     lis = df_w.values.tolist() # data
-    #     html = hj.render_jinja_html('template_email_c.html',
-    #         psno=psno, lis=lis, currtime=currtime)
-    #     try:
-    #         log.write(log_file, f'sendmail {psno} {email} 出勤異常通知\n{html}')
-    #         # ehr.sendmail(email, html, '出勤異常通知') # 寄信
-    #     except:
-    #         log.write(log_file, f'出勤異常通知, 寄信給{psno}失敗:({email})')
 
 if __name__ == '__main__':
     main()
