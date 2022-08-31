@@ -19,7 +19,6 @@ Alert_handler(){
 
     if (alr["ready"] = true  and A_Hour = alr["h"] and A_Min = alr["m"]){
         ; 時間到
-        alr["ready"] := false ;停用
         ToolTip
         Run_handler() ;執行
     }
@@ -27,6 +26,9 @@ Alert_handler(){
 
 Run_handler(){
     ; 登入遠端桌面 hr host
+    Global alr
+    alr["ready"] := false ;停用
+    SetTimer, Restart, -4200000 ; 1小時又10分候重新啟用
     SetTitleMatchMode 2
     if WinExist("yshr.asuscomm.com"){
         MsgBox, 64, State, 遠端桌面已連線!, 2
@@ -34,7 +36,6 @@ Run_handler(){
     else{
         ; MsgBox, 64, State, 遠端桌面尚未連線!, 2
         RunWait, C:\Windows\System32\mstsc.exe C:\Users\user\Desktop\yshr.asuscomm.com.rdp
-        SetTimer, Restart, -7200000 ; 2小時候重新啟用
     }
     return
 }
@@ -42,6 +43,7 @@ Run_handler(){
 Restart(){ ;重新啟用
     Global alr
     alr["ready"] := true 
+    return
 }
 
 ShowState(){
