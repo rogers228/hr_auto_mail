@@ -12,6 +12,7 @@ class db_hr(): #讀取excel 單一零件
         self.cn = pyodbc.connect(config_conn_HR) # connect str 連接字串
         self.dbps = self.get_database_ps() # 建議一次性基本資料檔，避免多次存取db
 
+
     def get_database_ps(self):
         s = "SELECT ps01,ps02,ps03,ps11,ps12,ps14,ps23,ps31,ps32,ps33,ps34,ps52 FROM rec_ps ORDER BY ps01"
         df = pd.read_sql(s, self.cn) #轉pd
@@ -49,7 +50,7 @@ class db_hr(): #讀取excel 單一零件
             13: '疫苗接種假'
             }
 
-    def update_sg15_1(sg01, value): # 更新sg15為 1 已通知
+    def update_sg15_1(self, sg01): # 更新sg15為 1 已通知
         SQL = 'UPDATE rec_sg SET sg15 = 1 WHERE sg01 = {0}'.format(sg01)
         try:
             cur = self.cn.cursor()
@@ -57,8 +58,8 @@ class db_hr(): #讀取excel 單一零件
             cur.commit() #更新
             cur.close() #關閉
         except:
+            print('error!')
             print(SQL)
-            logging.warning('error class db_ab().def runsql()! 無法執行SQL!')
 
     def runsql(self, SQL):
         try:
@@ -68,7 +69,7 @@ class db_hr(): #讀取excel 單一零件
             cur.close() #關閉
         except:
             print(SQL)
-            logging.warning('error class db_ab().def runsql()! 無法執行SQL!')
+
 
     def Get_hhk_df(self, ym, userno_arr=''):
         # ym 年月日6碼
@@ -132,8 +133,11 @@ def test1():
     hr = db_hr()
     # df = hr.Get_hhk_df('202208','AA0290')
     df = hr.get_sg1_df()
-    df1 = df[['sg01','sg15','ps02','ps03','ps12','ps13','ps52']]
-    print(df1)
+    if df is None:
+        print('None')
+    else:
+        df1 = df[['sg01','sg15','ps02','ps03','ps12','ps13','ps52']]
+        print(df1)
 
 if __name__ == '__main__':
     test1()        

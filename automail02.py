@@ -2,20 +2,19 @@
 # 20220831 加入windows排程
 import sys, time
 import tool_email
-import tool_mylog
 import tool_db_hr 
 import tool_html
 import tool_func
+import tool_mylog
+from functools import partial
+mylog = tool_mylog.MyLog(); log = partial(mylog.write, r'log_automail02.txt')
 
 def in_work_time(func): # 僅工作時間內通知
-    log = tool_mylog.MyLog()
-    log_file = r'log_automail02.txt'
+    global log
     def wrap():
         h = int(time.strftime("%H", time.localtime()))
-        # h = 8
         if any([h<=7, h>=21]): # 8點到20點執行通知 7點前 21點後 不執行
-            # print('exit')
-            log.write(log_file, '非工作時間故不執行通知')
+            log('非工作時間故不執行通知')
             sys.exit()
             return
         func()
@@ -31,7 +30,7 @@ def get_ms_dic(dateframe_row):
     lis_m.extend(lis_ps12); lis_m.extend(lis_ps13); lis_m.extend(lis_ps52)
     lis_m = list(filter(lambda e: e != '', lis_m)) # 非空白
     lis_m = list(set(lis_m)) # 不重複
-    # print(lis_m)
+
     lis_v = []
     for psno in lis_m:
         t = ''
@@ -47,18 +46,16 @@ def get_ms_dic(dateframe_row):
 
 @in_work_time # 僅工作時間內執行通知
 def main():
+    global log
     ehr = tool_email.Email_HR()
-    log = tool_mylog.MyLog()
-    log_file = r'log_automail02.txt'
     hr = tool_db_hr.db_hr()
     hj = tool_html.Jinja2()
     df = hr.get_sg1_df() # data 可更換資料來源
     if df is None:
-        log.write(log_file, '無請假需要通知')
+        log('無請假需要通知')
         sys.exit() #正式結束程式  需要導入sys
         return
 
-    # print(df)
     for i, r in df.iterrows():
         currtime = time.strftime("%Y-%m-%d %H:%M", time.localtime())
         sgid = r['sg01'] # 請假id
@@ -73,7 +70,6 @@ def main():
             psid = hr.nogetId(addressee); email = hr.idgetps14(psid)
             message = dic[addressee] # 通知說明
             msgStr = f"請假通知:Dear{addressee}{addressee_name}:\n{psno}{psname}已申請{holiday}({sgid})於{date_stage}合計:{days}天{message}。"
-            # print(msgStr)
             html = hj.render_jinja_html('template_email_h.html',
                 currtime = currtime,
                 addressee =  addressee,
@@ -82,13 +78,17 @@ def main():
                 holiday = holiday,
                 date_stage=date_stage, days=days) # 渲染
             try:
-                log.write(log_file, f'sendmail {email} {msgStr}')
+                log(f'sendmail: {email} {msgStr}')
                 ehr.sendmail(email, html, '請假通知') # 寄信
             except:
-                log.write(log_file, f'請假通知, 寄信給{addressee}失敗, email:({email})')
+                log(f'請假通知, 寄信給{addressee}失敗, email:{email}')
             finally:
-                hr.update_sg15_1(sgid) # 更新為已通知 不再通知
-                # print('finally')
+                try:
+                    hr.update_sg15_1(sgid) # 更新為已通知 不再通知
+                    log('更新為已通知 不再通知')
+                except:
+                    log('error!無法更新')
+
 
 if __name__ == '__main__':
     main()
