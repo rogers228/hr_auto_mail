@@ -21,7 +21,7 @@ def in_work_time(func): # 僅工作時間內通知
     return wrap
 
 def get_ms_dic(dateframe_row):
-    #　收件者　與　通知說明
+    #　收件者　與　通知說明內文
     r = dateframe_row
     lis_ps12 = r['ps12'].split(',') if len(r['ps12']) > 0 else [] # 職務代理人
     lis_ps13 = r['ps13'].split(',') if len(r['ps12']) > 0 else [] # 簽核人
@@ -34,11 +34,11 @@ def get_ms_dic(dateframe_row):
     lis_v = []
     for psno in lis_m:
         t = ''
-        if psno in lis_ps13: # 簽核人
+        if psno in lis_ps13: # 收件人 具簽核人身分
             t += ',請您撥冗至系統簽核'
-        if psno in lis_ps12: # 職務代理人
+        if psno in lis_ps12: # 收件人 具職務代理人身分
             t += ',將由您代理職務請您準備'
-        if psno in lis_ps52: # 請假通知人
+        if psno in lis_ps52: # 收件人 具請假通知人身分
             t += ',若影響您的工作請事先協調'
         lis_v.append(t)
 
@@ -78,8 +78,8 @@ def main():
                 holiday = holiday,
                 date_stage=date_stage, days=days) # 渲染
             try:
-                log(f'sendmail: {email} {msgStr}')
                 ehr.sendmail(email, html, '請假通知') # 寄信
+                log(f'sendmail: {email} {msgStr}')
             except:
                 log(f'請假通知, 寄信給{addressee}失敗, email:{email}')
             finally:
