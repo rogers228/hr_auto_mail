@@ -8,11 +8,14 @@ import tool_html
 import tool_func
 
 def in_work_time(func): # 僅工作時間內通知
+    log = tool_mylog.MyLog()
+    log_file = r'log_automail02.txt'
     def wrap():
         h = int(time.strftime("%H", time.localtime()))
         # h = 8
-        if any([h<7, h>=21]): # 8點到20點執行通知 7點前 21點後 不執行
+        if any([h<=7, h>=21]): # 8點到20點執行通知 7點前 21點後 不執行
             # print('exit')
+            log.write(log_file, '非工作時間故不執行通知')
             sys.exit()
             return
         func()
@@ -58,15 +61,18 @@ def main():
     # print(df)
     for i, r in df.iterrows():
         currtime = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+        sgid = r['sg01'] # 請假id
         psno = r['ps02'] # 請假人
+        psname = hr.nogetName(psno)
         holiday = hr.dic_sg().get(r['sg05'], '未設定假別') # 假別
         date_stage = tool_func.format_d12(r['sg06'], r['sg07']) # 請假時間
         dg = f"{r['sg08']:.3f}"; dg = dg.rstrip('0'); dg = dg.rstrip('.'); days = dg # 請假天數 特別格式 小數點去除0 及 小數點
         dic = get_ms_dic(r) # 收件者與通知說明
         for addressee in dic:
+            addressee_name = hr.nogetName(addressee)
             psid = hr.nogetId(addressee); email = hr.idgetps14(psid)
             message = dic[addressee] # 通知說明
-            msgStr = f"請假通知: Dear {addressee}：{psno} 已申請{holiday} 於{date_stage} 合計:{days}天{message}。"
+            msgStr = f"請假通知:Dear{addressee}{addressee_name}:\n{psno}{psname}已申請{holiday}({sgid})於{date_stage}合計:{days}天{message}。"
             # print(msgStr)
             html = hj.render_jinja_html('template_email_h.html',
                 currtime = currtime,
@@ -74,16 +80,15 @@ def main():
                 psno = psno,
                 message = message,
                 holiday = holiday,
-                date_stage=date_stage, days=days)
+                date_stage=date_stage, days=days) # 渲染
             try:
                 log.write(log_file, f'sendmail {email} {msgStr}')
                 ehr.sendmail(email, html, '請假通知') # 寄信
             except:
                 log.write(log_file, f'請假通知, 寄信給{addressee}失敗, email:({email})')
             finally:
-                hr.update_sg15_1(r['sg01']) # 更新為已通知 不再通知
+                hr.update_sg15_1(sgid) # 更新為已通知 不再通知
                 # print('finally')
-
 
 if __name__ == '__main__':
     main()

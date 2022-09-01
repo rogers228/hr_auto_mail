@@ -101,7 +101,7 @@ class db_hr(): #讀取excel 單一零件
 
     def get_sg1_df(self):
         s = '''
-            SELECT TOP 1 sg01,sg03,sg05,sg06,sg07,sg08,sg09,
+            SELECT sg01,sg03,sg05,sg06,sg07,sg08,sg09,sg15,
                 ps02,ps03,ps12,ps13,ps52
             FROM rec_sg
                 LEFT JOIN rec_ps ON sg03 = ps01
@@ -115,7 +115,7 @@ class db_hr(): #讀取excel 單一零件
 
     def get_sg1_test(self):
         s = '''
-            SELECT sg01,sg03,sg05,sg06,sg07,sg08,sg09,
+            SELECT sg01,sg03,sg05,sg06,sg07,sg08,sg09,sg15,
                 ps02,ps03,ps12,ps13,ps52
             FROM rec_sg
                 LEFT JOIN rec_ps ON sg03 = ps01
@@ -132,7 +132,8 @@ def test1():
     hr = db_hr()
     # df = hr.Get_hhk_df('202208','AA0290')
     df = hr.get_sg1_df()
-    print(df)
+    df1 = df[['sg01','sg15','ps02','ps03','ps12','ps13','ps52']]
+    print(df1)
 
 if __name__ == '__main__':
     test1()        
