@@ -7,10 +7,9 @@ import tool_html
 import tool_func
 import tool_mylog
 from functools import partial
-mylog = tool_mylog.MyLog(); log = partial(mylog.write, r'log_automail01.txt')
 
 def main():
-    global log
+    mylog = tool_mylog.MyLog(); log = partial(mylog.write, r'log_automail01.txt')
     currtime = time.strftime("%Y-%m-%d %H:%M", time.localtime())
     ehr = tool_email.Email_HR()
     log = tool_mylog.MyLog()
