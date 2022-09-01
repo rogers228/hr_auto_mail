@@ -12,8 +12,6 @@ def main():
     mylog = tool_mylog.MyLog(); log = partial(mylog.write, r'log_automail01.txt')
     currtime = time.strftime("%Y-%m-%d %H:%M", time.localtime())
     ehr = tool_email.Email_HR()
-    log = tool_mylog.MyLog()
-    log_file = r'log_automail01.txt'
     hr = tool_db_hr.db_hr()
     hj = tool_html.Jinja2()
     df = hr.Get_hhk_df(tool_func.ger_ym())
