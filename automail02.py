@@ -50,7 +50,7 @@ def main():
     ehr = tool_email.Email_HR()
     hr = tool_db_hr.db_hr()
     hj = tool_html.Jinja2()
-    df = hr.get_sg1_df() # data 可更換資料來源
+    df = hr.get_sg1_df() # data 請假資料
     if df is None:
         log('無請假需要通知')
         sys.exit() #正式結束程式  需要導入sys
@@ -59,11 +59,10 @@ def main():
     for i, r in df.iterrows():
         currtime = time.strftime("%Y-%m-%d %H:%M", time.localtime())
         sgid = r['sg01'] # 請假id
-        psno = r['ps02'] # 請假人
-        psname = hr.nogetName(psno)
+        psno = r['ps02']; psname = hr.nogetName(psno) # 請假人
         holiday = hr.dic_sg().get(r['sg05'], '未設定假別') # 假別
         date_stage = tool_func.format_d12(r['sg06'], r['sg07']) # 請假時間
-        dg = f"{r['sg08']:.3f}"; dg = dg.rstrip('0'); dg = dg.rstrip('.'); days = dg # 請假天數 特別格式 小數點去除0 及 小數點
+        dg = f"{r['sg08']:.3f}"; dg = dg.rstrip('0'); dg = dg.rstrip('.'); days = dg # 請假天數 特別格式(小數點去除0及小數點)
         dic = get_ms_dic(r) # 收件者與通知說明
         for addressee in dic:
             addressee_name = hr.nogetName(addressee)
