@@ -14,7 +14,7 @@ def in_work_time(func): # 僅工作時間內通知
     def wrap():
         h = int(time.strftime("%H", time.localtime()))
         if any([h<=7, h>=21]): # 8點到20點執行通知 7點前 21點後 不執行
-            log('非工作時間故不執行通知')
+            # log('非工作時間故不執行通知')
             sys.exit()
             return
         func()
@@ -52,7 +52,7 @@ def main():
     hj = tool_html.Jinja2()
     df = hr.get_sg1_df() # data 請假資料
     if df is None:
-        log('無請假需要通知')
+        # log('無請假需要通知')
         sys.exit() #正式結束程式  需要導入sys
         return
 
