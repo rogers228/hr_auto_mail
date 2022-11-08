@@ -9,7 +9,7 @@ Menu, Tray, Add, 立即登入, Run_handler
 Menu, Tray, Add, 目前狀態, ShowState
 
 SetTimer, Alert_handler, 1000
-alr := {"ready": true, "show_clock": false, "h":1, "m":30, "s":0}
+alr := {"ready": true, "show_clock": false, "h":2, "m":30, "s":0}
 
 Alert_handler(){
     Global alr
